@@ -9,12 +9,14 @@ const AppStyles = makeStyles(theme => ({
 		display: "flex",
 		flexFlow: "column",
 		height: "100%",
-		alignItems: "center",
-		justifyContent: "center"
+		userSelect: "none",
 	},
-	caption:
+	controls:
 	{
-		marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(4),
+		display: "flex",
+		alignItems: "center",
+		gap: theme.spacing(4),
 	},
 }));
 
