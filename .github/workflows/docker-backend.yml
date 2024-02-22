@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: xfox111/muicharts-backend
+  IMAGE_NAME: xfox111/muicharts-backend:latest
   CONTAINER_NAME: muicharts-backend-1
   DOCKER_RUN_ARGS: -d -p 80:80 -p 443:443 -v ./muicharts-data:/persistence
   CONTAINER_ARGS: 'HTTPS_PORTS=443 LettuceEncrypt:AcceptTermsOfService=true LettuceEncrypt:DomainNames:0=${{ secrets.REMOTE_HOST }} LettuceEncrypt:EmailAddress=${{ secrets.EFF_EMAIL }}'
@@ -18,24 +18,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.1
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get the date
-        id: date
-        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5.1.0
         with:
           context: backend
           push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ steps.date.outputs.date }}
+          tags: ${{ env.IMAGE_NAME }}
 
       - name: Update container on remote SSH host
         uses: appleboy/ssh-action@v1.0.3
@@ -44,7 +40,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker pull ${{ env.IMAGE_NAME }}:latest
+            docker pull ${{ env.IMAGE_NAME }}
             docker stop ${{ env.CONTAINER_NAME }}
             docker rm ${{ env.CONTAINER_NAME }}
-            docker run ${{ env.DOCKER_RUN_ARGS }} --name ${{ env.CONTAINER_NAME }} ${{ env.IMAGE_NAME }}:latest ${{ env.CONTAINER_ARGS }}
+            docker run ${{ env.DOCKER_RUN_ARGS }} --name ${{ env.CONTAINER_NAME }} ${{ env.IMAGE_NAME }} ${{ env.CONTAINER_ARGS }}
