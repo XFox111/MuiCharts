@@ -38,7 +38,7 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:${{ steps.date.outputs.date }}
 
       - name: Update container on remote SSH host
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
