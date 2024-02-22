@@ -37,7 +37,7 @@ public abstract class ApiControllerBase<T>(ILogger<T> logger)
 
 		Error firstError = errors[0];
 
-		Logger.LogError("An error occured during request processing: {Error}", firstError);
+		Logger.LogWarning("An error occured during request processing: {Error}", firstError);
 
 		int statusCode = firstError.Type switch
 		{

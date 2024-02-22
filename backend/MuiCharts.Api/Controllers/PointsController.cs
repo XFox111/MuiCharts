@@ -103,9 +103,10 @@ public class PointsController(
 
 		PointResponse[] points = [
 			.. query
-			.Skip((request.Page - 1) * request.Count)
-			.Take(request.Count)
-			.Select(point => MapPointResponse(point))
+				.OrderBy(i => i.Id)
+				.Skip((request.Page - 1) * request.Count)
+				.Take(request.Count)
+				.Select(point => MapPointResponse(point))
 		];
 
 		GetPointsResponse response = new(
