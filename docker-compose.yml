@@ -5,13 +5,21 @@ services:
     image: "muicharts-backend:latest"
     build:
       context: ./backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/swagger"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./persistence:/persistence
+      - ./persistence:/var/persistence
     environment:
       - "HTTPS_PORTS=443"
       - "LettuceEncrypt:AcceptTermsOfService=true"
-      - "LettuceEncrypt:DomainNames:0=containers.xfox111.net"
+      - "LettuceEncrypt:DomainNames:0=example.com"
+      - "LettuceEncrypt:DomainNames:1=www.example.com"
       - "LettuceEncrypt:EmailAddress=eugene@xfox111.net"
+      - "ConnectionStrings:DataContext=Data Source=/var/persistence/data.db"
+      - "LettuceEncrypt:CertificatesPath=/var/persistence"

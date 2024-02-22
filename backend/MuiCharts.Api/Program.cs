@@ -31,7 +31,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 	if (builder.Configuration.GetSection("LettuceEncrypt").Exists())
 		builder.Services.AddLettuceEncrypt()
-			.PersistDataToDirectory(new DirectoryInfo("/persistence"), null);
+			.PersistDataToDirectory(new DirectoryInfo(
+				builder.Configuration.GetValue<string>("LettuceEncrypt:CertificatesPath") ?? "/persistence"
+			), null);
 }
 
 WebApplication app = builder.Build();

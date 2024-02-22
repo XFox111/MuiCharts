@@ -28,8 +28,8 @@ If you want to use Kestrel as your primary web server (with no reverse proxy), y
 
 #### Data persistence
 Configure these options if you want to change default paths for data persistence:
-- `ConnectionStrings:DataContext=Data Source=/persistence/data.db` - SQLite DB connection string (default: `/persistence/data.db`)
-- `LettuceEncrypt:CertificatesPath=/persistence` - path to store Let's Encrypt certificates (default: `/persistence` for `Production` and `data.db` for `Development`)
+- `ConnectionStrings:DataContext=Data Source=/persistence/data.db` - SQLite DB connection string (default: `Data Source=/persistence/data.db` for `Production` and `Data Source=data.db` for `Development`)
+- `LettuceEncrypt:CertificatesPath=/persistence` - path to store Let's Encrypt certificates (default: `/persistence`)
 
 > **IMPORTANT**: default persistence paths are configured to be used in a Docker container, where the user is `root`. `/persistence` is not writtable by a non-root user, so you need either to change the paths if you want to run the app outside of a container without root privileges or run app as `sudo`.
 
@@ -41,7 +41,7 @@ Frontend is a simple React app with Material-UI. It consumes the RESTful API pro
 > 🚧 WIP
 
 ## Docker
-Use sample `docker-compose.yml` file to deploy the project on one server using Nginx
+Use sample `docker-compose.yml` to see how to deploy project using Docker
 
 ## GitHub Actions
 Path: `.github/workflows`

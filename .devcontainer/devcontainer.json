@@ -29,10 +29,10 @@
 		// "workload": "sudo /usr/share/dotnet/dotnet workload update",
 		"eftool": "/usr/share/dotnet/dotnet tool install --global dotnet-ef",
 		"system": "sudo apt update && sudo apt upgrade -y",
-		"backend": "cd backend && /usr/share/dotnet/dotnet restore"
-		// "frontend": "cd frontend && yarn install"
+		"backend": "cd backend && /usr/share/dotnet/dotnet restore",
+		"frontend": "cd frontend && yarn install"
 	},
-	"postStartCommand": "sudo /usr/share/dotnet/dotnet workload update",
+	"postStartCommand": "sudo /usr/share/dotnet/dotnet workload update"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
