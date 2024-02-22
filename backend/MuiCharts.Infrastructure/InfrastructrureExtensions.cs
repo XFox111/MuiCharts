@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MuiCharts.Domain.Repositories;
 using MuiCharts.Infrastructure.Repositories;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace MuiCharts.Infrastructure;
 
@@ -14,12 +17,16 @@ public static class InfrastructrureExtensions
 	/// </summary>
 	/// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
 	/// <returns>The modified <see cref="IServiceCollection"/>.</returns>
-	public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+	public static void AddInfrastructure(this IHostApplicationBuilder builder)
 	{
-		services.AddDbContext<DataContext>();
-		services.AddScoped<IPointRepository, PointRepository>();
-		services.AddScoped<ITrackRepository, TrackRepository>();
+		builder.Services.AddDbContext<DataContext>(options =>
+		{
+			options
+				.UseSqlite(builder.Configuration.GetConnectionString(nameof(DataContext)))
+				.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+		});
 
-		return services;
+		builder.Services.AddScoped<IPointRepository, PointRepository>();
+		builder.Services.AddScoped<ITrackRepository, TrackRepository>();
 	}
 }

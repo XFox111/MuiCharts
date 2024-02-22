@@ -1,4 +1,5 @@
 using System.Reflection;
+using LettuceEncrypt;
 using MuiCharts.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 	{
 		options.SuppressAsyncSuffixInActionNames = false;
 	});
-	builder.Services.AddInfrastructure();
+
+	builder.AddInfrastructure();
 
 	builder.Services.AddEndpointsApiExplorer();
 	builder.Services.AddSwaggerGen(options =>
@@ -26,6 +28,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 		string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFileName);
 		options.IncludeXmlComments(xmlPath);
 	});
+
+	if (builder.Configuration.GetSection("LettuceEncrypt").Exists())
+		builder.Services.AddLettuceEncrypt()
+			.PersistDataToDirectory(new DirectoryInfo("/persistence"), null);
 }
 
 WebApplication app = builder.Build();
@@ -35,7 +41,9 @@ WebApplication app = builder.Build();
 	app.UseSwagger();
 	app.UseSwaggerUI();
 
-	// app.UseHttpsRedirection();
+	if (app.Configuration.GetSection("LettuceEncrypt").Exists())
+		app.UseHttpsRedirection();
+
 	app.MapControllers();
 
 	app.Run();

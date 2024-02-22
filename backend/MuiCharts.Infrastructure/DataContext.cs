@@ -19,20 +19,13 @@ public class DataContext : DbContext
 	/// </summary>
 	public DbSet<Track> Tracks { get; set; }
 
-	/// <inheritdoc/>
-	public DataContext() : base() {}
-
-	/// <inheritdoc/>
-	public DataContext(DbContextOptions<DataContext> options) : base(options) {}
-
-	/// <inheritdoc/>
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	/// <summary>
+	/// Initializes a new instance of <see cref="DataContext"/>.
+	/// </summary>
+	/// <param name="options">The options for this context.</param>
+	public DataContext(DbContextOptions<DataContext> options) : base(options)
 	{
-		optionsBuilder
-			.UseSqlite("Data Source=data.db")
-			.EnableSensitiveDataLogging(
-				Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
-			);
+		Database.Migrate();
 	}
 
 	/// <inheritdoc/>
