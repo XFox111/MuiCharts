@@ -19,6 +19,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 as runtime
 WORKDIR /app
 
 COPY --from=build /app/out ./
+RUN mkdir /persistence
 
 ENV HTTP_PORTS=80
 EXPOSE 80

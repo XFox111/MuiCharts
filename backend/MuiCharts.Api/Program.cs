@@ -21,6 +21,17 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 	builder.AddInfrastructure();
 
+	builder.Services.AddCors(options =>
+	{
+		options.AddDefaultPolicy(policy =>
+		{
+			policy
+				.WithOrigins(builder.Configuration.GetValue<string[]>("Cors:Origins") ?? ["*"])
+				.WithMethods(builder.Configuration.GetValue<string[]>("Cors:Methods") ?? ["*"])
+				.AllowAnyHeader();
+		});
+	});
+
 	builder.Services.AddEndpointsApiExplorer();
 	builder.Services.AddSwaggerGen(options =>
 	{
@@ -45,6 +56,8 @@ WebApplication app = builder.Build();
 
 	if (app.Configuration.GetSection("LettuceEncrypt").Exists())
 		app.UseHttpsRedirection();
+
+	app.UseCors();
 
 	app.MapControllers();
 
