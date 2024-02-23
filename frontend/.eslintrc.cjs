@@ -32,7 +32,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-vars": "warn",
 		"@typescript-eslint/no-unnecessary-type-assertion": "warn",
 		"@typescript-eslint/no-explicit-any": "warn",
-		"@typescript-eslint/no-unused-vars": "warn",
+		"@typescript-eslint/no-unused-vars": "warn"
 	},
 	parserOptions: {
 		ecmaVersion: "latest",

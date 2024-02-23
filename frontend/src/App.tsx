@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import useStyles from "./App.styles";
 import ChartSkeleton from "./Components/ChartSkeleton";
 import TrackChart from "./Components/TrackChart";
-import IPoint from "./Data/IPoint";
-import ITrack from "./Data/ITrack";
-import LoadMockData from "./Data/LoadMockData";
+import ApiEndpoints from "./Data/Api/ApiEndpoints";
+import IPoint from "./Data/Api/Models/IPoint";
+import ITrack from "./Data/Api/Models/ITrack";
+import { GeneratePoints, GenerateTracks } from "./Data/MockDataGenerator";
 
 const theme: Theme = createTheme();
 
@@ -20,25 +21,68 @@ function App(): JSX.Element
 	const [zoom, setZoom] = useState<number[]>([0, 1]);
 	const sx = useStyles();
 
-	const loadData = () =>
-	{
-		setLoading(true);
-		console.log("Loading data...");
-		const newData = LoadMockData(true);
-		setData(newData);
-		setZoom([0, Math.min(newData.tracks.length + 1, 20)]);
-
-		new Promise(resolve => setTimeout(resolve, 1000))
-			.then(() => setLoading(false))
-			.catch(console.error);
-	};
-
 	useEffect(() =>
 	{
-		loadData();
+		void LoadDataAsync();
 	}, []);
 
-	const handleZoomChange = (_: unknown, newValue: number | number[]) =>
+	async function LoadDataAsync(): Promise<void>
+	{
+		setLoading(true);
+		const { Points, Tracks } = new ApiEndpoints();
+
+		try
+		{
+			const tracks: ITrack[] = await Tracks.GetAllTracksAsync();
+			let points: IPoint[] = [];
+
+			if (tracks.length > 0)
+				points = await Points.GetPointsArrayAsync([
+					...tracks.map(t => t.firstId),
+					tracks[tracks.length - 1].secondId
+				]);
+
+			setData({ tracks, points });
+			setZoom([0, Math.min(tracks.length + 1, 20)]);
+		}
+		catch (error)
+		{
+			console.error("Failed to load data:", error);
+		}
+		finally
+		{
+			console.log("Data loaded")
+			setLoading(false);
+		}
+	}
+
+	async function RecreateDataAsync(): Promise<void>
+	{
+		setLoading(true);
+		const { Points, Tracks } = new ApiEndpoints();
+
+		try
+		{
+			const points: IPoint[] = GeneratePoints(120);
+			const tracks: ITrack[] = GenerateTracks(points);
+
+			await Points.ImportPointsAsync(points);
+			await Tracks.ImportTracksAsync(tracks);
+
+			await LoadDataAsync();
+		}
+		catch (error)
+		{
+			console.error("Failed to recreate data:", error);
+		}
+		finally
+		{
+			console.log("Data recreated")
+			setLoading(false);
+		}
+	}
+
+	function OnZoomChange(_: unknown, newValue: number | number[]): void
 	{
 		const value: number[] = newValue as number[];
 
@@ -46,10 +90,13 @@ function App(): JSX.Element
 			return;
 
 		if (value[1] - value[0] > 50)
+		{
 			setLoading(true);
+			setTimeout(() => setLoading(false), 500);
+		}
 
 		setZoom(value);
-	};
+	}
 
 	return (
 		<ThemeProvider theme={ theme }>
@@ -58,21 +105,21 @@ function App(): JSX.Element
 			<Box sx={ sx.root }>
 				<TrackChart
 					tracks={ data.tracks } points={ data.points }
-					zoom={ zoom } onProcessingComplete={ () => setLoading(false) } />
+					zoom={ zoom } />
 
 				<Container sx={ sx.controls }>
 					{ !isLoading &&
 						<Slider
 							min={ 0 } max={ data.tracks.length + 1 }
-							defaultValue={ zoom } onChangeCommitted={ handleZoomChange }
+							defaultValue={ zoom } onChangeCommitted={ OnZoomChange }
 							valueLabelDisplay="auto" />
 					}
 
 					<Button
 						variant="contained" color="inherit" endIcon={ <RefreshIcon /> }
-						onClick={ loadData } disabled={ isLoading }>
+						onClick={ () => void RecreateDataAsync() } disabled={ isLoading }>
 
-						Refresh
+						Recreate
 					</Button>
 				</Container>
 			</Box>

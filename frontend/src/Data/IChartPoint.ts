@@ -1,5 +1,5 @@
-import MaxSpeed from "./MaxSpeed";
-import Surface from "./Surface";
+import MaxSpeed from "./Api/Models/MaxSpeed";
+import Surface from "./Api/Models/Surface";
 
 /** Represents an aggregated point on the chart. */
 export default interface IChartPoint

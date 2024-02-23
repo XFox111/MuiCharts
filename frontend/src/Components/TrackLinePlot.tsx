@@ -2,7 +2,7 @@ import { SxProps } from "@mui/system";
 import { LinePlot, useDrawingArea, useXScale } from "@mui/x-charts";
 import { ScaleLinear } from "d3-scale";
 import { useEffect } from "react";
-import MaxSpeed from "../Data/MaxSpeed";
+import MaxSpeed from "../Data/Api/Models/MaxSpeed";
 import IChartPoint from "../Data/IChartPoint";
 
 // Remarks:

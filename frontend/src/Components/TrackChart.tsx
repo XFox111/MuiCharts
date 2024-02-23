@@ -1,10 +1,10 @@
 import { SxProps } from "@mui/system";
 import * as xc from "@mui/x-charts";
 import { useEffect, useState } from "react";
+import IPoint from "../Data/Api/Models/IPoint";
+import MaxSpeed from "../Data/Api/Models/MaxSpeed";
 import IChartPoint from "../Data/IChartPoint";
-import IPoint from "../Data/IPoint";
-import ITrack from "../Data/ITrack";
-import MaxSpeed from "../Data/MaxSpeed";
+import ITrack from "../Data/Api/Models/ITrack";
 import { TooltipProps, TracklineSeries } from "../Data/TrackChartDataProps";
 import CartesianGrid from "./CartesianGrid";
 import TrackLinePlot from "./TrackLinePlot";
@@ -18,14 +18,12 @@ interface IProps
 	points: IPoint[];
 	/** The zoom levels (start, end). */
 	zoom: number[];
-	/** A callback for when the processing is complete. */
-	onProcessingComplete?: () => void;
 }
 
 /**
  * A chart of the track.
  */
-function TrackChart({ tracks, points, zoom, ...props }: IProps): JSX.Element
+function TrackChart({ tracks, points, zoom }: IProps): JSX.Element
 {
 	const [dataset, setDataset] = useState<IChartPoint[]>([]);
 	const [xTicks, setXTicks] = useState<number[]>([]);
@@ -84,10 +82,7 @@ function TrackChart({ tracks, points, zoom, ...props }: IProps): JSX.Element
 		setXTicks(data.map(i => i.distance));
 
 		console.warn("Reflow!");
-
-		setTimeout(() => props.onProcessingComplete?.(), 500);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [tracks, points, props.onProcessingComplete]);
+	}, [tracks, points]);
 
 	useEffect(() =>
 	{

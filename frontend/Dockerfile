@@ -1,6 +1,8 @@
 # Use the official Node.js 20 image as the base image
 FROM node:20 as builder
 
+ARG API_URL=http://localhost:5152
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -12,6 +14,8 @@ RUN yarn install
 
 # Copy the app source code to the working directory
 COPY . .
+
+RUN echo "VITE_API_URL=${API_URL}" > .env.production
 
 # Build the app
 RUN yarn build

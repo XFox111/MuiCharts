@@ -1,8 +1,8 @@
 import { green, grey, orange, red, yellow } from "@mui/material/colors";
 import { AllSeriesType, ChartsAxisContentProps } from "@mui/x-charts";
+import MaxSpeed from "./Api/Models/MaxSpeed";
+import Surface from "./Api/Models/Surface";
 import IChartPoint from "./IChartPoint";
-import MaxSpeed from "./MaxSpeed";
-import Surface from "./Surface";
 
 /** Props for rendering trackline segments. */
 export const TracklineSeries: AllSeriesType[] = [
