@@ -17,6 +17,10 @@ Backend is a simple ASP.NET Core Web API project with EF Core and SQLite. It pro
 
 ### Essential variables
 Use these properties as environmental variables or CLI arguments to configure the backend:
+#### CORS
+- `Cors:Origins=[*]` - Origins allowed by CORS
+- `Cors:Methods=[GET,PUT,POST,DELETE]` - Methods allowed by CORS
+
 #### HTTPS
 If you want to use Kestrel as your primary web server (with no reverse proxy), you can use the following properties to configure HTTPS with Let's Encrypt certificate:
 - `HTTPS_PORTS=443` - Listen for HTTPS requests on port 443
@@ -38,14 +42,12 @@ Path: `/frontend`
 
 Frontend is a simple React app with Material-UI. It consumes the RESTful API provided by the backend (or uses its emulation) and visualizes the data.
 
-> 🚧 WIP
-
-## Docker
-Use sample `docker-compose.yml` to see how to deploy project using Docker
+### API host URL
+Use `VITE_API_URL` variable on build time to configure URL for backend host
 
 ## GitHub Actions
 Path: `.github/workflows`
 
 There are two GitHub Actions workflows:
-- `backend.yml` - CI/CD for the backend. Deploys the app to a remote server using Docker and SSH
-- `frontend.yml` - CI/CD for the frontend. Deploys the app to GitHub Pages
+- `docker-backend.yml` - CI/CD for the backend. Deploys the app to a remote server using Docker and SSH
+- `ghpages-frontend.yml` - CI/CD for the frontend. Deploys the app to GitHub Pages
