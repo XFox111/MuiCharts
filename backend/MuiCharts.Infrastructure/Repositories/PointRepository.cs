@@ -26,23 +26,13 @@ public class PointRepository(
 		{
 			_logger.LogInformation("Adding or updating point {point}", point);
 
-			bool doesExist = _context.Points.Any(p => p.Id == point.Id);
+			Point result = UpsertPoint(point, out bool isNewlyCreated);
+			await _context.SaveChangesAsync();
 
-			if (doesExist)
-			{
-				_logger.LogInformation("Point {id} exists, updating", point.Id);
-				_context.Points.Update(point);
-				await _context.SaveChangesAsync();
+			if (!isNewlyCreated)
 				return (Point?)null;
-			}
-			else
-			{
-				_logger.LogInformation("Point {id} does not exist, adding", point.Id);
-				EntityEntry<Point> result = _context.Points.Add(point);
-				await _context.SaveChangesAsync();
 
-				return result.Entity;
-			}
+			return result;
 		}
 		catch (Exception e)
 		{
@@ -69,6 +59,29 @@ public class PointRepository(
 		}
 	}
 
+	public async Task<ErrorOr<IEnumerable<Point>>> AddPointsRangeAsync(IEnumerable<Point> points)
+	{
+		try
+		{
+			_logger.LogInformation("Adding points rage");
+
+			List<Point> updatedPoints = [];
+
+			foreach (Point point in points)
+				updatedPoints.Add(UpsertPoint(point, out _));
+
+			await _context.SaveChangesAsync();
+			_logger.LogInformation("Added {Count} points", updatedPoints.Count);
+
+			return updatedPoints;
+		}
+		catch (Exception e)
+		{
+			_logger.LogError(e, "Error adding points {points}", points);
+			return Error.Failure();
+		}
+	}
+
 	/// <inheritdoc/>
 	public async Task<ErrorOr<Deleted>> DeletePointAsync(int id)
 	{
@@ -80,6 +93,9 @@ public class PointRepository(
 
 			if (point == null)
 				return Error.NotFound();
+
+			if (_context.Tracks.Any(t => t.FirstId == id || t.SecondId == id))
+				return Error.Conflict(description: "Point is used in a track. Delete track first");
 
 			_context.Points.Remove(point);
 			await _context.SaveChangesAsync();
@@ -118,5 +134,19 @@ public class PointRepository(
 	public Task<IQueryable<Point>> GetPointsRangeAsync()
 	{
 		return Task.FromResult(_context.Points.AsQueryable());
+	}
+
+	private Point UpsertPoint(Point point, out bool isNewlyCreated)
+	{
+		bool doesExist = _context.Points.Any(p => p.Id == point.Id);
+		isNewlyCreated = !doesExist;
+		Point entity;
+
+		if (doesExist)
+			entity = _context.Points.Update(point).Entity;
+		else
+			entity = _context.Points.Add(point).Entity;
+
+		return entity;
 	}
 }

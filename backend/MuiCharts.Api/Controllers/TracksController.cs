@@ -139,6 +139,29 @@ public class TracksController(
 	}
 
 	/// <summary>
+	/// Imports tracks.
+	/// </summary>
+	/// <param name="requests">The requests containing the track details.</param>
+	/// <returns>An <see cref="IActionResult"/> representing the asynchronous operation result.</returns>
+	[HttpPost("Import")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesDefaultResponseType(typeof(ProblemDetails))]
+	public async Task<IActionResult> ImportTracksAsync(Track[] requests)
+	{
+		Logger.LogInformation("Importing tracks");
+
+		ErrorOr<IEnumerable<Track>> importResult = await _repository.AddTracksRangeAsync(requests);
+
+		if (importResult.IsError)
+			return Problem(importResult.Errors);
+
+		Logger.LogInformation("Tracks imported");
+
+		return Ok(importResult.Value);
+	}
+
+	/// <summary>
 	/// Deletes a track with the specified first point ID and second point ID.
 	/// </summary>
 	/// <param name="firstId">The first point ID of the track to delete.</param>

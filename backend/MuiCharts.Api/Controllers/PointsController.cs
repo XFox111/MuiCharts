@@ -61,6 +61,12 @@ public class PointsController(
 	{
 		Logger.LogInformation("Getting points with ids {Ids}", ids);
 
+		if (ids.Length < 1)
+		{
+			Logger.LogInformation("No point IDs provided");
+			return Problem([Error.Validation()]);
+		}
+
 		IQueryable<Point> query = await _repository.GetPointsRangeAsync();
 
 		PointResponse[] points = [
@@ -182,6 +188,29 @@ public class PointsController(
 	}
 
 	/// <summary>
+	/// Imports an array of points.
+	/// </summary>
+	/// <param name="points">The array of points to import.</param>
+	/// <returns>An <see cref="IActionResult"/> representing the asynchronous operation result.</returns>
+	[HttpPost("Import")]
+	[ProducesResponseType<Point[]>(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesDefaultResponseType(typeof(ProblemDetails))]
+	public async Task<IActionResult> ImportPointsAsync(Point[] points)
+	{
+		Logger.LogInformation("Importing points");
+
+		ErrorOr<IEnumerable<Point>> importResult = await _repository.AddPointsRangeAsync(points);
+
+		if (importResult.IsError)
+			return Problem(importResult.Errors);
+
+		Logger.LogInformation("Imported {Count} points", importResult.Value.Count());
+
+		return Ok(importResult.Value);
+	}
+
+	/// <summary>
 	/// Deletes a point with the specified ID.
 	/// </summary>
 	/// <param name="id">The ID of the point to delete.</param>
@@ -189,6 +218,7 @@ public class PointsController(
 	[HttpDelete("{id:int}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status409Conflict)]
 	[ProducesDefaultResponseType(typeof(ProblemDetails))]
 	public async Task<IActionResult> DeletePointAsync(int id)
 	{

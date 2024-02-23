@@ -41,4 +41,11 @@ public interface IPointRepository
 	/// <param name="id">The ID of the point to delete.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains a flag indicating if the point was deleted successfully or an error.</returns>
 	Task<ErrorOr<Deleted>> DeletePointAsync(int id);
+
+	/// <summary>
+	/// Adds a range of points asynchronously.
+	/// </summary>
+	/// <param name="points">The points to add.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains the added points or an error.</returns>
+	Task<ErrorOr<IEnumerable<Point>>> AddPointsRangeAsync(IEnumerable<Point> points);
 }

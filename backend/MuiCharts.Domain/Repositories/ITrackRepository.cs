@@ -43,4 +43,11 @@ public interface ITrackRepository
 	/// <param name="secondId">The second ID.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains the deletion status if successful, or an error if unsuccessful.</returns>
 	Task<ErrorOr<Deleted>> DeleteTrackAsync(int firstId, int secondId);
+
+	/// <summary>
+	/// Adds a range of tracks asynchronously.
+	/// </summary>
+	/// <param name="tracks">The tracks to add.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains the added tracks if successful, or an error if unsuccessful.</returns>
+	Task<ErrorOr<IEnumerable<Track>>> AddTracksRangeAsync(IEnumerable<Track> tracks);
 }

@@ -32,23 +32,13 @@ public class TrackRepository(
 				return Error.Validation(description: "One or both specified points do not exist.");
 			}
 
-			bool doesExist = _context.Tracks.Any(t => t.FirstId == track.FirstId && t.SecondId == track.SecondId);
+			Track entity =  UpsertTrack(track, out bool isNewlyCreated);
+			await _context.SaveChangesAsync();
 
-			if (doesExist)
-			{
-				_logger.LogInformation("Track with first ID {FirstId} and second ID {SecondId} exists, updating", track.FirstId, track.SecondId);
-				_context.Tracks.Update(track);
-				await _context.SaveChangesAsync();
+			if (!isNewlyCreated)
 				return (Track?)null;
-			}
-			else
-			{
-				_logger.LogInformation("Track with first ID {FirstId} and second ID {SecondId} does not exist, adding", track.FirstId, track.SecondId);
-				EntityEntry<Track> result = _context.Tracks.Add(track);
-				await _context.SaveChangesAsync();
 
-				return result.Entity;
-			}
+			return entity;
 		}
 		catch (Exception e)
 		{
@@ -84,6 +74,29 @@ public class TrackRepository(
 		catch (Exception e)
 		{
 			_logger.LogError(e, "Error adding track with first ID {FirstId} and second ID {SecondId}", track.FirstId, track.SecondId);
+			return Error.Failure();
+		}
+	}
+
+	public async Task<ErrorOr<IEnumerable<Track>>> AddTracksRangeAsync(IEnumerable<Track> tracks)
+	{
+		try
+		{
+			_logger.LogInformation("Adding tracks range");
+
+			List<Track> updatedTracks = [];
+
+			foreach (Track track in tracks)
+				updatedTracks.Add(UpsertTrack(track, out _));
+
+			await _context.SaveChangesAsync();
+			_logger.LogInformation("Added {Count} tracks", updatedTracks.Count);
+
+			return updatedTracks;
+		}
+		catch (Exception e)
+		{
+			_logger.LogError(e, "Error adding tracks {tracks}", tracks);
 			return Error.Failure();
 		}
 	}
@@ -143,6 +156,21 @@ public class TrackRepository(
 	public Task<IQueryable<Track>> GetTracksRangeAsync()
 	{
 		return Task.FromResult(_context.Tracks.AsQueryable());
+	}
+
+	private Track UpsertTrack(Track track, out bool isNewlyCreated)
+	{
+		bool doesExist = _context.Tracks.Any(t => t.FirstId == track.FirstId && t.SecondId == track.SecondId);
+		isNewlyCreated = !doesExist;
+
+		Track entity;
+
+		if (doesExist)
+			entity = _context.Tracks.Update(track).Entity;
+		else
+			entity = _context.Tracks.Add(track).Entity;
+
+		return entity;
 	}
 
 	private bool IsValidTrack(Track track)
