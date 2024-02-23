@@ -12,7 +12,7 @@ env:
   IMAGE_NAME: xfox111/muicharts-backend:latest
   CONTAINER_NAME: muicharts-backend-1
   DOCKER_RUN_ARGS: -d -p 80:80 -p 443:443 -v ./muicharts-data:/persistence
-  CONTAINER_ARGS: 'HTTPS_PORTS=443 LettuceEncrypt:AcceptTermsOfService=true LettuceEncrypt:DomainNames:0=${{ secrets.REMOTE_HOST }} LettuceEncrypt:EmailAddress=${{ secrets.EFF_EMAIL }}'
+  CONTAINER_ARGS: 'HTTPS_PORTS=443 LettuceEncrypt:AcceptTermsOfService=true LettuceEncrypt:DomainNames:0=${{ secrets.REMOTE_HOST }} LettuceEncrypt:EmailAddress=${{ secrets.EFF_EMAIL }} Cors:Origins:0=xfox111.github.io'
 
 jobs:
   build:
